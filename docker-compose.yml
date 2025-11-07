@@ -1,7 +1,7 @@
 services:
   # SQL Server Database
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: mcr.microsoft.com/azure-sql-edge:latest
     platform: linux/amd64
     container_name: shopfree-db
     environment:
@@ -20,6 +20,12 @@ services:
       timeout: 5s
       retries: 30
       start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
 
   # Backend API
   api:
