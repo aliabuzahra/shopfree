@@ -1,8 +1,8 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
 import PrivateRoute from '../PrivateRoute'
-import { AuthProvider } from '../../../context/AuthContext'
+import { AuthProvider, useAuth } from '../../../context/AuthContext'
 
 // Mock useAuth
 vi.mock('../../../context/AuthContext', async () => {
@@ -13,41 +13,54 @@ vi.mock('../../../context/AuthContext', async () => {
   }
 })
 
-const renderWithRouter = (component, { isAuthenticated = false } = {}) => {
-  const mockUseAuth = (await import('../../../context/AuthContext')).useAuth
-  mockUseAuth.mockReturnValue({
-    isAuthenticated,
-    loading: false,
-    user: isAuthenticated ? { id: 1, email: 'test@example.com' } : null,
+describe('PrivateRoute', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  return render(
-    <BrowserRouter>
-      <AuthProvider>
-        {component}
-      </AuthProvider>
-    </BrowserRouter>
-  )
-}
-
-describe('PrivateRoute', () => {
   it('should render children when authenticated', () => {
-    renderWithRouter(
-      <PrivateRoute>
-        <div>Protected Content</div>
-      </PrivateRoute>,
-      { isAuthenticated: true }
+    // Mock authenticated state
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: true,
+      loading: false,
+      user: { id: 1, email: 'test@example.com' },
+      login: vi.fn(),
+      logout: vi.fn(),
+      register: vi.fn(),
+    })
+
+    render(
+      <BrowserRouter>
+        <AuthProvider>
+          <PrivateRoute>
+            <div>Protected Content</div>
+          </PrivateRoute>
+        </AuthProvider>
+      </BrowserRouter>
     )
 
     expect(screen.getByText('Protected Content')).toBeInTheDocument()
   })
 
   it('should redirect when not authenticated', () => {
-    renderWithRouter(
-      <PrivateRoute>
-        <div>Protected Content</div>
-      </PrivateRoute>,
-      { isAuthenticated: false }
+    // Mock unauthenticated state
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: false,
+      loading: false,
+      user: null,
+      login: vi.fn(),
+      logout: vi.fn(),
+      register: vi.fn(),
+    })
+
+    render(
+      <BrowserRouter>
+        <AuthProvider>
+          <PrivateRoute>
+            <div>Protected Content</div>
+          </PrivateRoute>
+        </AuthProvider>
+      </BrowserRouter>
     )
 
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
