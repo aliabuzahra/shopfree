@@ -13,7 +13,7 @@ public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatus
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<UpdateOrderStatusCommandHandler> _logger;
-    
+
     public UpdateOrderStatusCommandHandler(
         IOrderRepository orderRepository,
         IUnitOfWork unitOfWork,
@@ -25,7 +25,7 @@ public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatus
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<OrderDto> Handle(UpdateOrderStatusCommand request, CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetWithItemsAsync(request.Id, cancellationToken);
@@ -33,12 +33,12 @@ public class UpdateOrderStatusCommandHandler : IRequestHandler<UpdateOrderStatus
         {
             throw new InvalidOperationException($"Order with ID {request.Id} not found");
         }
-        
+
         order.UpdateStatus(request.Status);
-        
+
         await _orderRepository.UpdateAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return _mapper.Map<OrderDto>(order);
     }
 }

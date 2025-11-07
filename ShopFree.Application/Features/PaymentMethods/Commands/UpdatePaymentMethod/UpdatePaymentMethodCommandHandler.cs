@@ -13,7 +13,7 @@ public class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePaymentMe
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<UpdatePaymentMethodCommandHandler> _logger;
-    
+
     public UpdatePaymentMethodCommandHandler(
         IPaymentMethodRepository paymentMethodRepository,
         IUnitOfWork unitOfWork,
@@ -25,7 +25,7 @@ public class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePaymentMe
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<PaymentMethodDto> Handle(UpdatePaymentMethodCommand request, CancellationToken cancellationToken)
     {
         var paymentMethod = await _paymentMethodRepository.GetByIdAsync(request.Id, cancellationToken);
@@ -33,9 +33,9 @@ public class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePaymentMe
         {
             throw new InvalidOperationException($"PaymentMethod with ID {request.Id} not found");
         }
-        
+
         paymentMethod.Update(request.Title, request.Details);
-        
+
         if (request.IsActive.HasValue)
         {
             if (request.IsActive.Value)
@@ -47,10 +47,10 @@ public class UpdatePaymentMethodCommandHandler : IRequestHandler<UpdatePaymentMe
                 paymentMethod.Deactivate();
             }
         }
-        
+
         await _paymentMethodRepository.UpdateAsync(paymentMethod, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return _mapper.Map<PaymentMethodDto>(paymentMethod);
     }
 }

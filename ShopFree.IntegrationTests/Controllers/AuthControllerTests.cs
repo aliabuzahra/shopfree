@@ -65,7 +65,7 @@ public class AuthControllerTests : IClassFixture<CustomWebApplicationFactory>
         // Arrange
         var email = $"login{Guid.NewGuid()}@example.com";
         var password = "Password123!";
-        
+
         // Register first
         var registerDto = new
         {

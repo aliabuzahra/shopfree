@@ -13,7 +13,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<UpdateProductCommandHandler> _logger;
-    
+
     public UpdateProductCommandHandler(
         IProductRepository productRepository,
         IUnitOfWork unitOfWork,
@@ -25,7 +25,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
@@ -33,7 +33,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         {
             throw new InvalidOperationException($"Product with ID {request.Id} not found");
         }
-        
+
         // Update product properties
         if (!string.IsNullOrWhiteSpace(request.Name))
         {
@@ -53,7 +53,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
                 request.ImageUrl ?? product.ImageUrl,
                 request.Stock);
         }
-        
+
         if (request.IsActive.HasValue)
         {
             if (request.IsActive.Value)
@@ -65,10 +65,10 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
                 product.Deactivate();
             }
         }
-        
+
         await _productRepository.UpdateAsync(product, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return _mapper.Map<ProductDto>(product);
     }
 }

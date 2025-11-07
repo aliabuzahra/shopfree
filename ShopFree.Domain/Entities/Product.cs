@@ -11,14 +11,14 @@ public class Product : BaseEntity
     public string? ImageUrl { get; private set; }
     public int Stock { get; private set; }
     public bool IsActive { get; private set; }
-    
+
     // Navigation properties
     public Store Store { get; private set; } = null!;
     private readonly List<OrderItem> _orderItems = new();
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
-    
+
     private Product() { } // For EF Core
-    
+
     public Product(int storeId, string name, decimal price, string? description = null, string? imageUrl = null, int stock = 0)
     {
         StoreId = storeId;
@@ -30,7 +30,7 @@ public class Product : BaseEntity
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
     }
-    
+
     public void Update(string name, decimal price, string? description = null, string? imageUrl = null, int? stock = null)
     {
         Name = name;
@@ -43,25 +43,25 @@ public class Product : BaseEntity
         }
         UpdatedAt = DateTime.UtcNow;
     }
-    
+
     public void Activate()
     {
         IsActive = true;
         UpdatedAt = DateTime.UtcNow;
     }
-    
+
     public void Deactivate()
     {
         IsActive = false;
         UpdatedAt = DateTime.UtcNow;
     }
-    
+
     public void UpdateStock(int quantity)
     {
         Stock = quantity;
         UpdatedAt = DateTime.UtcNow;
     }
-    
+
     public bool HasStock(int requestedQuantity)
     {
         return Stock >= requestedQuantity;

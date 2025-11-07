@@ -15,7 +15,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<CreateProductCommandHandler> _logger;
-    
+
     public CreateProductCommandHandler(
         IProductRepository productRepository,
         IStoreRepository storeRepository,
@@ -29,7 +29,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<ProductDto> Handle(CreateProductCommand request, CancellationToken cancellationToken)
     {
         // Verify store exists
@@ -38,7 +38,7 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
         {
             throw new InvalidOperationException($"Store with ID {request.StoreId} not found");
         }
-        
+
         var product = new Product(
             request.StoreId,
             request.Name,
@@ -46,10 +46,10 @@ public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand,
             request.Description,
             request.ImageUrl,
             request.Stock);
-        
+
         await _productRepository.AddAsync(product, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return _mapper.Map<ProductDto>(product);
     }
 }

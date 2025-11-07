@@ -10,12 +10,12 @@ public class OrderRepository : BaseRepository<Order>, IOrderRepository
     public OrderRepository(ApplicationDbContext context) : base(context)
     {
     }
-    
+
     public async Task<Order?> GetByOrderNumberAsync(string orderNumber, CancellationToken cancellationToken = default)
     {
         return await _dbSet.FirstOrDefaultAsync(o => o.OrderNumber == orderNumber, cancellationToken);
     }
-    
+
     public async Task<List<Order>> GetByStoreIdAsync(int storeId, CancellationToken cancellationToken = default)
     {
         return await _dbSet
@@ -23,7 +23,7 @@ public class OrderRepository : BaseRepository<Order>, IOrderRepository
             .OrderByDescending(o => o.CreatedAt)
             .ToListAsync(cancellationToken);
     }
-    
+
     public async Task<Order?> GetWithItemsAsync(int id, CancellationToken cancellationToken = default)
     {
         return await _dbSet

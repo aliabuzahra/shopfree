@@ -10,12 +10,12 @@ public class PaymentMethod : BaseEntity
     public string? Title { get; private set; }
     public string? Details { get; private set; }
     public bool IsActive { get; private set; }
-    
+
     // Navigation properties
     public Store Store { get; private set; } = null!;
-    
+
     private PaymentMethod() { } // For EF Core
-    
+
     public PaymentMethod(int storeId, PaymentMethodType type, string? title = null, string? details = null)
     {
         StoreId = storeId;
@@ -25,20 +25,20 @@ public class PaymentMethod : BaseEntity
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
     }
-    
+
     public void Update(string? title = null, string? details = null)
     {
         Title = title;
         Details = details;
         UpdatedAt = DateTime.UtcNow;
     }
-    
+
     public void Activate()
     {
         IsActive = true;
         UpdatedAt = DateTime.UtcNow;
     }
-    
+
     public void Deactivate()
     {
         IsActive = false;

@@ -15,7 +15,7 @@ public class CreatePaymentMethodCommandHandler : IRequestHandler<CreatePaymentMe
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<CreatePaymentMethodCommandHandler> _logger;
-    
+
     public CreatePaymentMethodCommandHandler(
         IPaymentMethodRepository paymentMethodRepository,
         IStoreRepository storeRepository,
@@ -29,7 +29,7 @@ public class CreatePaymentMethodCommandHandler : IRequestHandler<CreatePaymentMe
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<PaymentMethodDto> Handle(CreatePaymentMethodCommand request, CancellationToken cancellationToken)
     {
         // Verify store exists
@@ -38,16 +38,16 @@ public class CreatePaymentMethodCommandHandler : IRequestHandler<CreatePaymentMe
         {
             throw new InvalidOperationException($"Store with ID {request.StoreId} not found");
         }
-        
+
         var paymentMethod = new PaymentMethod(
             request.StoreId,
             request.Type,
             request.Title,
             request.Details);
-        
+
         await _paymentMethodRepository.AddAsync(paymentMethod, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return _mapper.Map<PaymentMethodDto>(paymentMethod);
     }
 }

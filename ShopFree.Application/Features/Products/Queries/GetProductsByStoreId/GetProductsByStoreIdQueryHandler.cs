@@ -11,7 +11,7 @@ public class GetProductsByStoreIdQueryHandler : IRequestHandler<GetProductsBySto
     private readonly IProductRepository _productRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetProductsByStoreIdQueryHandler> _logger;
-    
+
     public GetProductsByStoreIdQueryHandler(
         IProductRepository productRepository,
         IMapper mapper,
@@ -21,13 +21,13 @@ public class GetProductsByStoreIdQueryHandler : IRequestHandler<GetProductsBySto
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<List<ProductDto>> Handle(GetProductsByStoreIdQuery request, CancellationToken cancellationToken)
     {
         var products = request.ActiveOnly
             ? await _productRepository.GetActiveByStoreIdAsync(request.StoreId, cancellationToken)
             : await _productRepository.GetByStoreIdAsync(request.StoreId, cancellationToken);
-        
+
         return _mapper.Map<List<ProductDto>>(products);
     }
 }

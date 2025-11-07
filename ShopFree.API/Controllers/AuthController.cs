@@ -10,12 +10,12 @@ namespace ShopFree.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IMediator _mediator;
-    
+
     public AuthController(IMediator mediator)
     {
         _mediator = mediator;
     }
-    
+
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterCommand command)
     {
@@ -29,7 +29,7 @@ public class AuthController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-    
+
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginCommand command)
     {

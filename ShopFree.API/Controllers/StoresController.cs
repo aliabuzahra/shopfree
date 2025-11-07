@@ -14,26 +14,26 @@ namespace ShopFree.API.Controllers;
 public class StoresController : ControllerBase
 {
     private readonly IMediator _mediator;
-    
+
     public StoresController(IMediator mediator)
     {
         _mediator = mediator;
     }
-    
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetStore(int id)
     {
         var query = new GetStoreByIdQuery { Id = id };
         var result = await _mediator.Send(query);
-        
+
         if (result == null)
         {
             return NotFound();
         }
-        
+
         return Ok(result);
     }
-    
+
     [HttpGet("user/{userId}")]
     public async Task<IActionResult> GetStoresByUser(int userId)
     {
@@ -41,7 +41,7 @@ public class StoresController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
-    
+
     [HttpGet("my-stores")]
     public async Task<IActionResult> GetMyStores()
     {
@@ -51,12 +51,12 @@ public class StoresController : ControllerBase
         {
             return Unauthorized();
         }
-        
+
         var query = new GetStoresByUserIdQuery { UserId = userId };
         var result = await _mediator.Send(query);
         return Ok(result);
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> CreateStore([FromBody] CreateStoreCommand command)
     {
@@ -68,7 +68,7 @@ public class StoresController : ControllerBase
             {
                 return Unauthorized();
             }
-            
+
             command.UserId = userId;
             var result = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetStore), new { id = result.Id }, result);
@@ -78,7 +78,7 @@ public class StoresController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-    
+
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateStore(int id, [FromBody] UpdateStoreCommand command)
     {

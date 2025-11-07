@@ -1,4 +1,4 @@
-﻿namespace ShopFree.IntegrationTests;
+namespace ShopFree.IntegrationTests;
 
 public class UnitTest1
 {

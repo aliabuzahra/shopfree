@@ -9,13 +9,13 @@ public class OrderItem : BaseEntity
     public int Quantity { get; private set; }
     public decimal UnitPrice { get; private set; }
     public decimal TotalPrice { get; private set; }
-    
+
     // Navigation properties
     public Order Order { get; private set; } = null!;
     public Product Product { get; private set; } = null!;
-    
+
     private OrderItem() { } // For EF Core
-    
+
     public OrderItem(int orderId, int productId, int quantity, decimal unitPrice)
     {
         OrderId = orderId;

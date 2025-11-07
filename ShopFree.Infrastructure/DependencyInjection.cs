@@ -20,21 +20,21 @@ public static class DependencyInjection
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)));
-        
+
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IStoreRepository, StoreRepository>();
         services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<IOrderRepository, OrderRepository>();
         services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
-        
+
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        
+
         // Services
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<ITenantService, TenantService>();
-        
+
         return services;
     }
 }

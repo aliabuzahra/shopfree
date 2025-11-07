@@ -10,7 +10,7 @@ public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand,
     private readonly IProductRepository _productRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<DeleteProductCommandHandler> _logger;
-    
+
     public DeleteProductCommandHandler(
         IProductRepository productRepository,
         IUnitOfWork unitOfWork,
@@ -20,7 +20,7 @@ public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand,
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
-    
+
     public async Task<Unit> Handle(DeleteProductCommand request, CancellationToken cancellationToken)
     {
         var product = await _productRepository.GetByIdAsync(request.Id, cancellationToken);
@@ -28,10 +28,10 @@ public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand,
         {
             throw new InvalidOperationException($"Product with ID {request.Id} not found");
         }
-        
+
         await _productRepository.DeleteAsync(product, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return Unit.Value;
     }
 }

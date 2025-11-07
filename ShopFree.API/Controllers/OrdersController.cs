@@ -15,40 +15,40 @@ namespace ShopFree.API.Controllers;
 public class OrdersController : ControllerBase
 {
     private readonly IMediator _mediator;
-    
+
     public OrdersController(IMediator mediator)
     {
         _mediator = mediator;
     }
-    
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOrder(int id)
     {
         var query = new GetOrderByIdQuery { Id = id };
         var result = await _mediator.Send(query);
-        
+
         if (result == null)
         {
             return NotFound();
         }
-        
+
         return Ok(result);
     }
-    
+
     [HttpGet("number/{orderNumber}")]
     public async Task<IActionResult> GetOrderByNumber(string orderNumber)
     {
         var query = new GetOrderByOrderNumberQuery { OrderNumber = orderNumber };
         var result = await _mediator.Send(query);
-        
+
         if (result == null)
         {
             return NotFound();
         }
-        
+
         return Ok(result);
     }
-    
+
     [HttpGet("store/{storeId}")]
     public async Task<IActionResult> GetOrdersByStore(int storeId)
     {
@@ -56,7 +56,7 @@ public class OrdersController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand command)
     {
@@ -70,7 +70,7 @@ public class OrdersController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-    
+
     [HttpPut("{id}/status")]
     public async Task<IActionResult> UpdateOrderStatus(int id, [FromBody] UpdateOrderStatusCommand command)
     {

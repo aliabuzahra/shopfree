@@ -20,7 +20,7 @@ public class RegisterCommandHandlerTests
         _userRepositoryMock = new Mock<IUserRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _jwtServiceMock = new Mock<IJwtService>();
-        
+
         _handler = new RegisterCommandHandler(
             _userRepositoryMock.Object,
             _unitOfWorkMock.Object,
@@ -55,7 +55,7 @@ public class RegisterCommandHandlerTests
         result.Should().NotBeNull();
         result.Token.Should().Be("test-token");
         result.User.Email.Should().Be(command.Email);
-        
+
         _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
         _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

@@ -11,7 +11,7 @@ public class GetOrdersByStoreIdQueryHandler : IRequestHandler<GetOrdersByStoreId
     private readonly IOrderRepository _orderRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetOrdersByStoreIdQueryHandler> _logger;
-    
+
     public GetOrdersByStoreIdQueryHandler(
         IOrderRepository orderRepository,
         IMapper mapper,
@@ -21,11 +21,11 @@ public class GetOrdersByStoreIdQueryHandler : IRequestHandler<GetOrdersByStoreId
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<List<OrderDto>> Handle(GetOrdersByStoreIdQuery request, CancellationToken cancellationToken)
     {
         var orders = await _orderRepository.GetByStoreIdAsync(request.StoreId, cancellationToken);
-        
+
         // Load items for each order
         var ordersWithItems = new List<Domain.Entities.Order>();
         foreach (var order in orders)
@@ -36,7 +36,7 @@ public class GetOrdersByStoreIdQueryHandler : IRequestHandler<GetOrdersByStoreId
                 ordersWithItems.Add(orderWithItems);
             }
         }
-        
+
         return _mapper.Map<List<OrderDto>>(ordersWithItems);
     }
 }

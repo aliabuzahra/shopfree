@@ -11,7 +11,7 @@ public class GetStoreByIdQueryHandler : IRequestHandler<GetStoreByIdQuery, Store
     private readonly IStoreRepository _storeRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetStoreByIdQueryHandler> _logger;
-    
+
     public GetStoreByIdQueryHandler(
         IStoreRepository storeRepository,
         IMapper mapper,
@@ -21,7 +21,7 @@ public class GetStoreByIdQueryHandler : IRequestHandler<GetStoreByIdQuery, Store
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<StoreDto?> Handle(GetStoreByIdQuery request, CancellationToken cancellationToken)
     {
         var store = await _storeRepository.GetByIdAsync(request.Id, cancellationToken);

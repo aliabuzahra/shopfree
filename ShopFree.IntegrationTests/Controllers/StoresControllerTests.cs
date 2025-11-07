@@ -21,7 +21,7 @@ public class StoresControllerTests : IClassFixture<CustomWebApplicationFactory>
         // Register and login to get token
         var email = $"storetest{Guid.NewGuid()}@example.com";
         var password = "Password123!";
-        
+
         var registerDto = new
         {
             email = email,
@@ -38,7 +38,7 @@ public class StoresControllerTests : IClassFixture<CustomWebApplicationFactory>
         };
         var loginResponse = await _client.PostAsJsonAsync("/api/auth/login", loginDto);
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<dynamic>();
-        
+
         return loginResult?.token?.ToString() ?? string.Empty;
     }
 

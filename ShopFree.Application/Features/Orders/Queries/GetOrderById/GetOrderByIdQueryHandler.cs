@@ -11,7 +11,7 @@ public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, Order
     private readonly IOrderRepository _orderRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetOrderByIdQueryHandler> _logger;
-    
+
     public GetOrderByIdQueryHandler(
         IOrderRepository orderRepository,
         IMapper mapper,
@@ -21,7 +21,7 @@ public class GetOrderByIdQueryHandler : IRequestHandler<GetOrderByIdQuery, Order
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<OrderDto?> Handle(GetOrderByIdQuery request, CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetWithItemsAsync(request.Id, cancellationToken);

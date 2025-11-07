@@ -15,14 +15,14 @@ public class Order : BaseEntity
     public PaymentMethodType PaymentMethodType { get; private set; }
     public string? PaymentDetails { get; private set; }
     public string? Notes { get; private set; }
-    
+
     // Navigation properties
     public Store Store { get; private set; } = null!;
     private readonly List<OrderItem> _orderItems = new();
     public IReadOnlyCollection<OrderItem> OrderItems => _orderItems.AsReadOnly();
-    
+
     private Order() { } // For EF Core
-    
+
     public Order(
         int storeId,
         string orderNumber,
@@ -43,19 +43,19 @@ public class Order : BaseEntity
         TotalAmount = 0;
         CreatedAt = DateTime.UtcNow;
     }
-    
+
     public void AddOrderItem(OrderItem item)
     {
         _orderItems.Add(item);
         RecalculateTotal();
     }
-    
+
     public void UpdateStatus(OrderStatus status)
     {
         Status = status;
         UpdatedAt = DateTime.UtcNow;
     }
-    
+
     private void RecalculateTotal()
     {
         TotalAmount = _orderItems.Sum(item => item.TotalPrice);

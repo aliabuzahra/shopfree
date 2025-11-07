@@ -14,7 +14,7 @@ public class CreateStoreCommandHandler : IRequestHandler<CreateStoreCommand, Sto
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<CreateStoreCommandHandler> _logger;
-    
+
     public CreateStoreCommandHandler(
         IStoreRepository storeRepository,
         IUnitOfWork unitOfWork,
@@ -26,7 +26,7 @@ public class CreateStoreCommandHandler : IRequestHandler<CreateStoreCommand, Sto
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<StoreDto> Handle(CreateStoreCommand request, CancellationToken cancellationToken)
     {
         // Check if subdomain is already taken
@@ -37,17 +37,17 @@ public class CreateStoreCommandHandler : IRequestHandler<CreateStoreCommand, Sto
                 throw new InvalidOperationException($"Subdomain '{request.Subdomain}' is already taken");
             }
         }
-        
+
         var store = new Store(
             request.UserId,
             request.Name,
             request.Description,
             request.Subdomain,
             request.LogoUrl);
-        
+
         await _storeRepository.AddAsync(store, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return _mapper.Map<StoreDto>(store);
     }
 }

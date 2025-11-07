@@ -18,7 +18,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<CreateOrderCommandHandler> _logger;
-    
+
     public CreateOrderCommandHandler(
         IOrderRepository orderRepository,
         IProductRepository productRepository,
@@ -34,7 +34,7 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<OrderDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
     {
         // Verify store exists
@@ -43,19 +43,19 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
         {
             throw new InvalidOperationException($"Store with ID {request.StoreId} not found");
         }
-        
+
         // Generate order number
         var orderNumber = GenerateOrderNumber();
-        
+
         // Create customer info
         var customer = new CustomerInfo(
             request.CustomerName,
             request.CustomerEmail,
             request.CustomerPhone);
-        
+
         // Create shipping address (simplified - using full address string)
         var shippingAddress = Address.FromFullAddress(request.ShippingAddress);
-        
+
         // Validate products and check stock before creating order
         var productsToUpdate = new List<(Product product, int quantity)>();
         foreach (var itemDto in request.Items)
@@ -65,20 +65,20 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
             {
                 throw new InvalidOperationException($"Product with ID {itemDto.ProductId} not found");
             }
-            
+
             if (!product.IsActive)
             {
                 throw new InvalidOperationException($"Product {product.Name} is not active");
             }
-            
+
             if (!product.HasStock(itemDto.Quantity))
             {
                 throw new InvalidOperationException($"Insufficient stock for product {product.Name}");
             }
-            
+
             productsToUpdate.Add((product, itemDto.Quantity));
         }
-        
+
         // Create order
         var order = new Order(
             request.StoreId,
@@ -88,11 +88,11 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
             request.PaymentMethodType,
             request.PaymentDetails,
             request.Notes);
-        
+
         // Save order first to get ID
         await _orderRepository.AddAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         // Add order items
         foreach (var (product, quantity) in productsToUpdate)
         {
@@ -101,23 +101,23 @@ public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, Ord
                 product.Id,
                 quantity,
                 product.Price);
-            
+
             order.AddOrderItem(orderItem);
-            
+
             // Update product stock
             product.UpdateStock(product.Stock - quantity);
             await _productRepository.UpdateAsync(product, cancellationToken);
         }
-        
+
         // Update order with items
         await _orderRepository.UpdateAsync(order, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         // Reload order with items
         var createdOrder = await _orderRepository.GetWithItemsAsync(order.Id, cancellationToken);
         return _mapper.Map<OrderDto>(createdOrder);
     }
-    
+
     private string GenerateOrderNumber()
     {
         return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid().ToString("N")[..8].ToUpper()}";

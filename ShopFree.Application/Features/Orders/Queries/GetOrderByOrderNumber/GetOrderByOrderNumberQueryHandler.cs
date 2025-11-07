@@ -11,7 +11,7 @@ public class GetOrderByOrderNumberQueryHandler : IRequestHandler<GetOrderByOrder
     private readonly IOrderRepository _orderRepository;
     private readonly IMapper _mapper;
     private readonly ILogger<GetOrderByOrderNumberQueryHandler> _logger;
-    
+
     public GetOrderByOrderNumberQueryHandler(
         IOrderRepository orderRepository,
         IMapper mapper,
@@ -21,7 +21,7 @@ public class GetOrderByOrderNumberQueryHandler : IRequestHandler<GetOrderByOrder
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<OrderDto?> Handle(GetOrderByOrderNumberQuery request, CancellationToken cancellationToken)
     {
         var order = await _orderRepository.GetByOrderNumberAsync(request.OrderNumber, cancellationToken);
@@ -29,7 +29,7 @@ public class GetOrderByOrderNumberQueryHandler : IRequestHandler<GetOrderByOrder
         {
             return null;
         }
-        
+
         var orderWithItems = await _orderRepository.GetWithItemsAsync(order.Id, cancellationToken);
         return orderWithItems != null ? _mapper.Map<OrderDto>(orderWithItems) : null;
     }

@@ -1,4 +1,4 @@
-﻿namespace ShopFree.Application;
+namespace ShopFree.Application;
 
 public class Class1
 {

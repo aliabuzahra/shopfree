@@ -15,26 +15,26 @@ namespace ShopFree.API.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
-    
+
     public ProductsController(IMediator mediator)
     {
         _mediator = mediator;
     }
-    
+
     [HttpGet("{id}")]
     public async Task<IActionResult> GetProduct(int id)
     {
         var query = new GetProductByIdQuery { Id = id };
         var result = await _mediator.Send(query);
-        
+
         if (result == null)
         {
             return NotFound();
         }
-        
+
         return Ok(result);
     }
-    
+
     [HttpGet("store/{storeId}")]
     public async Task<IActionResult> GetProductsByStore(int storeId, [FromQuery] bool activeOnly = false)
     {
@@ -42,7 +42,7 @@ public class ProductsController : ControllerBase
         var result = await _mediator.Send(query);
         return Ok(result);
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
     {
@@ -56,7 +56,7 @@ public class ProductsController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-    
+
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateProduct(int id, [FromBody] UpdateProductCommand command)
     {
@@ -71,7 +71,7 @@ public class ProductsController : ControllerBase
             return BadRequest(new { message = ex.Message });
         }
     }
-    
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteProduct(int id)
     {

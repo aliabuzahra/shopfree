@@ -13,7 +13,7 @@ public class UpdateStoreCommandHandler : IRequestHandler<UpdateStoreCommand, Sto
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly ILogger<UpdateStoreCommandHandler> _logger;
-    
+
     public UpdateStoreCommandHandler(
         IStoreRepository storeRepository,
         IUnitOfWork unitOfWork,
@@ -25,7 +25,7 @@ public class UpdateStoreCommandHandler : IRequestHandler<UpdateStoreCommand, Sto
         _mapper = mapper;
         _logger = logger;
     }
-    
+
     public async Task<StoreDto> Handle(UpdateStoreCommand request, CancellationToken cancellationToken)
     {
         var store = await _storeRepository.GetByIdAsync(request.Id, cancellationToken);
@@ -33,15 +33,15 @@ public class UpdateStoreCommandHandler : IRequestHandler<UpdateStoreCommand, Sto
         {
             throw new InvalidOperationException($"Store with ID {request.Id} not found");
         }
-        
+
         store.Update(
             request.Name ?? store.Name,
             request.Description,
             request.LogoUrl);
-        
+
         await _storeRepository.UpdateAsync(store, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return _mapper.Map<StoreDto>(store);
     }
 }
