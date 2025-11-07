@@ -2,17 +2,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy solution file
-COPY ["ShopFree.sln", "./"]
-
-# Copy project files
+# Copy project files (excluding test projects)
 COPY ["ShopFree.API/ShopFree.API.csproj", "ShopFree.API/"]
 COPY ["ShopFree.Application/ShopFree.Application.csproj", "ShopFree.Application/"]
 COPY ["ShopFree.Domain/ShopFree.Domain.csproj", "ShopFree.Domain/"]
 COPY ["ShopFree.Infrastructure/ShopFree.Infrastructure.csproj", "ShopFree.Infrastructure/"]
 
-# Restore dependencies
-RUN dotnet restore "ShopFree.sln"
+# Restore dependencies for API project (will restore all dependencies)
+RUN dotnet restore "ShopFree.API/ShopFree.API.csproj"
 
 # Copy everything else and build
 COPY . .

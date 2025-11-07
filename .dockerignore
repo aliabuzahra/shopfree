@@ -1,0 +1,56 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Documentation
+*.md
+README*
+LICENSE
+CHANGELOG*
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+**/bin/
+**/obj/
+**/out/
+
+# Test projects (not needed for API build)
+ShopFree.UnitTests/
+ShopFree.IntegrationTests/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# Frontend (handled separately)
+shopfree-frontend/
+
+# CI/CD
+.github/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
