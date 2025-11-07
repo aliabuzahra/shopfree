@@ -53,7 +53,7 @@ jobs:
       if: matrix.service == 'api'
       uses: docker/build-push-action@v5
       with:
-        context: ./ShopFree.API
+        context: .
         file: ./ShopFree.API/Dockerfile
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
