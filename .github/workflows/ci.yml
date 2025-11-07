@@ -48,7 +48,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
-        cache-dependency-path: shopfree-frontend/package-lock.json
+        cache-dependency-path: shopfree-frontend/package.json
     
     - name: Install dependencies
       working-directory: ./shopfree-frontend
@@ -130,7 +130,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
-        cache-dependency-path: shopfree-frontend/package-lock.json
+        cache-dependency-path: shopfree-frontend/package.json
     
     - name: Install dependencies
       working-directory: ./shopfree-frontend

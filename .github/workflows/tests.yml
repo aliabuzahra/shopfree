@@ -70,7 +70,7 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: shopfree-frontend/package-lock.json
+        cache-dependency-path: shopfree-frontend/package.json
     
     - name: Install dependencies
       working-directory: ./shopfree-frontend
