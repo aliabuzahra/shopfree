@@ -1,0 +1,80 @@
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: shopfree-db-dev
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data-dev:/var/opt/mssql
+    networks:
+      - shopfree-network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  # Backend API (Development with hot reload)
+  api:
+    build:
+      context: .
+      dockerfile: ShopFree.API/Dockerfile.dev
+    container_name: shopfree-api-dev
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ShopFreeDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=ShopFree
+      - Jwt__Audience=ShopFree
+      - DOTNET_USE_POLLING_FILE_WATCHER=true
+      - ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS=false
+    ports:
+      - "5001:80"
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks:
+      - shopfree-network
+    volumes:
+      - ./ShopFree.API:/app
+      - ./ShopFree.Application:/src/ShopFree.Application
+      - ./ShopFree.Domain:/src/ShopFree.Domain
+      - ./ShopFree.Infrastructure:/src/ShopFree.Infrastructure
+      - api-build:/app/bin
+      - api-obj:/app/obj
+
+  # Frontend (Development with hot reload)
+  frontend:
+    image: node:18-alpine
+    container_name: shopfree-frontend-dev
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - shopfree-network
+    volumes:
+      - ./shopfree-frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:5001/api
+      - CHOKIDAR_USEPOLLING=true
+
+volumes:
+  sqlserver-data-dev:
+    driver: local
+  api-build:
+  api-obj:
+
+networks:
+  shopfree-network:
+    driver: bridge
+

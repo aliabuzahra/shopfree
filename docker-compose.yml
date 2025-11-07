@@ -1,0 +1,68 @@
+services:
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: shopfree-db
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong@Passw0rd
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - shopfree-network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  # Backend API
+  api:
+    build:
+      context: .
+      dockerfile: ShopFree.API/Dockerfile
+    container_name: shopfree-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ShopFreeDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=True;MultipleActiveResultSets=true
+      - Jwt__Key=YourSuperSecretKeyThatIsAtLeast32CharactersLong!
+      - Jwt__Issuer=ShopFree
+      - Jwt__Audience=ShopFree
+    ports:
+      - "5001:80"
+    depends_on:
+      sqlserver:
+        condition: service_started
+    networks:
+      - shopfree-network
+    volumes:
+      - ./ShopFree.API/appsettings.Development.json:/app/appsettings.Development.json:ro
+
+  # Frontend
+  frontend:
+    build:
+      context: ./shopfree-frontend
+      dockerfile: Dockerfile
+    container_name: shopfree-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    networks:
+      - shopfree-network
+    environment:
+      - VITE_API_URL=http://localhost:5001/api
+
+volumes:
+  sqlserver-data:
+    driver: local
+
+networks:
+  shopfree-network:
+    driver: bridge
+

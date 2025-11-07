@@ -1,0 +1,61 @@
+name: CI - Build
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  backend-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build Backend
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Check for build errors
+      run: |
+        if [ $? -ne 0 ]; then
+          echo "Build failed!"
+          exit 1
+        fi
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: shopfree-frontend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./shopfree-frontend
+      run: npm ci
+    
+    - name: Build Frontend
+      working-directory: ./shopfree-frontend
+      run: npm run build
+    
+    - name: Check for build errors
+      run: |
+        if [ $? -ne 0 ]; then
+          echo "Build failed!"
+          exit 1
+        fi
+

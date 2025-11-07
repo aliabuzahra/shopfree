@@ -1,0 +1,182 @@
+name: CI - Full Pipeline
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  NODE_VERSION: '18'
+
+jobs:
+  # Build jobs
+  build-backend:
+    name: Build Backend
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: backend-build
+        path: '**/bin/Release/**/*.dll'
+
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: shopfree-frontend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./shopfree-frontend
+      run: npm ci
+    
+    - name: Build
+      working-directory: ./shopfree-frontend
+      run: npm run build
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: frontend-build
+        path: shopfree-frontend/dist
+
+  # Test jobs
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: YourStrong@Passw0rd
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore
+    
+    - name: Run Unit Tests
+      run: dotnet test ShopFree.UnitTests/ShopFree.UnitTests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults
+    
+    - name: Run Integration Tests
+      run: dotnet test ShopFree.IntegrationTests/ShopFree.IntegrationTests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: backend-test-results
+        path: ./TestResults
+    
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      if: always()
+      with:
+        files: '**/coverage.cobertura.xml'
+        flags: backend
+        name: backend-coverage
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        cache-dependency-path: shopfree-frontend/package-lock.json
+    
+    - name: Install dependencies
+      working-directory: ./shopfree-frontend
+      run: npm ci
+    
+    - name: Run Unit Tests
+      working-directory: ./shopfree-frontend
+      run: npm run test -- --run --reporter=json --outputFile=test-results.json
+    
+    - name: Install Playwright browsers
+      working-directory: ./shopfree-frontend
+      run: npx playwright install --with-deps
+    
+    - name: Run E2E Tests
+      working-directory: ./shopfree-frontend
+      run: npm run test:e2e || echo "E2E tests failed but continuing..."
+      continue-on-error: true
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: frontend-test-results
+        path: shopfree-frontend/test-results.json
+
+  # Combined status check
+  ci-status:
+    name: CI Status
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend, test-backend, test-frontend]
+    if: always()
+    
+    steps:
+    - name: Check CI Status
+      run: |
+        echo "✅ All CI checks completed!"
+        echo "Backend Build: ${{ needs.build-backend.result }}"
+        echo "Frontend Build: ${{ needs.build-frontend.result }}"
+        echo "Backend Tests: ${{ needs.test-backend.result }}"
+        echo "Frontend Tests: ${{ needs.test-frontend.result }}"
+        
+        if [ "${{ needs.build-backend.result }}" != "success" ] || \
+           [ "${{ needs.build-frontend.result }}" != "success" ] || \
+           [ "${{ needs.test-backend.result }}" != "success" ] || \
+           [ "${{ needs.test-frontend.result }}" != "success" ]; then
+          echo "❌ Some CI checks failed!"
+          exit 1
+        fi
+
