@@ -22,7 +22,7 @@ jobs:
       run: dotnet restore ShopFree.sln
     
     - name: Run dotnet format check
-      run: dotnet format ShopFree.sln --verify-no-changes --verbosity diagnostic
+      run: dotnet format ShopFree.sln --verify-no-changes --verbosity minimal
       continue-on-error: true
     
     - name: Check for linting errors
