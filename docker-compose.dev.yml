@@ -2,6 +2,7 @@ services:
   # SQL Server Database
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
     container_name: shopfree-db-dev
     environment:
       - ACCEPT_EULA=Y
@@ -16,8 +17,9 @@ services:
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q "SELECT 1" || exit 1
       interval: 10s
-      timeout: 3s
-      retries: 10
+      timeout: 5s
+      retries: 30
+      start_period: 60s
 
   # Backend API (Development with hot reload)
   api:
