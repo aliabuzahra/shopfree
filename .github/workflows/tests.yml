@@ -11,19 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     
     services:
-      sqlserver:
-        image: mcr.microsoft.com/mssql/server:2022-latest
+      postgres:
+        image: postgres:16-alpine
         env:
-          ACCEPT_EULA: Y
-          SA_PASSWORD: YourStrong@Passw0rd
+          POSTGRES_USER: shopfree
+          POSTGRES_PASSWORD: YourStrong@Passw0rd
+          POSTGRES_DB: ShopFreeDb
         ports:
-          - 1433:1433
+          - 5432:5432
         options: >-
-          --health-cmd "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong@Passw0rd -Q 'SELECT 1' || exit 1"
+          --health-cmd "pg_isready -U shopfree"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 30
-          --health-start-period 60s
+          --health-retries 5
 
     steps:
     - uses: actions/checkout@v4
