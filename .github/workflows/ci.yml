@@ -52,7 +52,7 @@ jobs:
     
     - name: Install dependencies
       working-directory: ./shopfree-frontend
-      run: npm ci
+      run: npm install
     
     - name: Build
       working-directory: ./shopfree-frontend
@@ -134,7 +134,7 @@ jobs:
     
     - name: Install dependencies
       working-directory: ./shopfree-frontend
-      run: npm ci
+      run: npm install
     
     - name: Run Unit Tests
       working-directory: ./shopfree-frontend
