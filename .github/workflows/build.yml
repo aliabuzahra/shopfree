@@ -19,10 +19,10 @@ jobs:
         dotnet-version: '9.0.x'
     
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ShopFree.sln
     
     - name: Build Backend
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build ShopFree.sln --no-restore --configuration Release
     
     - name: Check for build errors
       run: |

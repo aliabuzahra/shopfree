@@ -25,10 +25,10 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ShopFree.sln
     
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build ShopFree.sln --no-restore --configuration Release
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -92,10 +92,10 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
     
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ShopFree.sln
     
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build ShopFree.sln --no-restore
     
     - name: Run Unit Tests
       run: dotnet test ShopFree.UnitTests/ShopFree.UnitTests.csproj --no-build --verbosity normal --collect:"XPlat Code Coverage" --logger trx --results-directory ./TestResults

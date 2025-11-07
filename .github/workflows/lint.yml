@@ -19,7 +19,7 @@ jobs:
         dotnet-version: '9.0.x'
     
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ShopFree.sln
     
     - name: Run dotnet format check
       run: dotnet format --verify-no-changes --verbosity diagnostic
